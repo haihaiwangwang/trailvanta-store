@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#10271f">
+  <meta name="description" content="Discover practical outdoor and sports gear for trails, training and everyday adventure. Shop the TRAILVANTA collection.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TRAILVANTA — Gear Up. Get Out There.">
+  <meta property="og:description" content="Adventure-ready essentials for wherever the day takes you.">
+  <title>TRAILVANTA | Outdoor & Sports Gear</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="announcement">FREE SHIPPING ON DEMO ORDERS OVER $75 <span>·</span> BUILT FOR YOUR NEXT ADVENTURE</div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="TRAILVANTA home"><span class="brand-mark">T<span>V</span></span><span class="brand-name">TRAILVANTA<small>SPORTS & OUTDOOR</small></span></a>
+    <nav class="desktop-nav" aria-label="Main navigation"><a href="#shop">Shop all</a><a href="#categories">Categories</a><a href="#story">Our story</a><a href="#contact">Contact</a></nav>
+    <button class="cart-trigger" id="cartOpen" aria-label="Open shopping cart">BAG <span id="count">0</span></button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> MADE FOR THE WAY OUT</p>
+        <h1>Gear up.<br><em>Get out there.</em></h1>
+        <p class="hero-description">Find your next favorite piece of gear. Thoughtful essentials for wild trails, early workouts and everywhere in between.</p>
+        <div class="hero-actions"><a class="button button-light" href="#shop">SHOP THE COLLECTION <span>↗</span></a><a class="text-link" href="#categories">Explore categories <span>↓</span></a></div>
+        <div class="hero-proof"><div class="proof-avatars"><i>↗</i><i>✳</i><i>＋</i></div><span>Everyday gear. Extraordinary days.</span></div>
+      </div>
+      <div class="hero-art" aria-label="Illustration of a mountain adventure" role="img">
+        <div class="sun"></div><div class="mountain mountain-back"></div><div class="mountain mountain-front"></div><div class="trail-line"></div>
+        <div class="hero-stamp"><span>FIND<br>YOUR<br>WILD</span><b>EST. FOR ADVENTURE</b></div>
+        <span class="art-coordinate">38° 32' N /  alpine state of mind</span>
+      </div>
+      <div class="hero-index">01 <span>—</span> 04</div>
+    </section>
+
+    <div class="benefit-strip"><div><span>✳</span> ADVENTURE-READY PICKS</div><div><span>↗</span> MADE TO MOVE WITH YOU</div><div><span>◎</span> HERE WHEN YOU NEED US</div></div>
+
+    <section class="section categories-section" id="categories">
+      <div class="section-heading"><div><p class="eyebrow">PICK YOUR PLAYGROUND</p><h2>Find your <em>element.</em></h2></div><p class="section-note">From the first mile to the last light, start with gear that gets you going.</p></div>
+      <div class="category-grid">
+        <a class="category-card category-camp" href="#shop" data-cat="Camping"><span class="category-number">01 / EXPLORE</span><span class="category-icon">⌁</span><span class="category-title">Camp &<br>Hike</span><span class="category-link">SHOP CATEGORY ↗</span></a>
+        <a class="category-card category-fitness" href="#shop" data-cat="Fitness"><span class="category-number">02 / TRAIN</span><span class="category-icon">✳</span><span class="category-title">Fitness &<br>Training</span><span class="category-link">SHOP CATEGORY ↗</span></a>
+        <a class="category-card category-cycle" href="#shop" data-cat="Cycling"><span class="category-number">03 / RIDE</span><span class="category-icon">◉</span><span class="category-title">Ride &<br>Cycle</span><span class="category-link">SHOP CATEGORY ↗</span></a>
+        <a class="category-card category-water" href="#shop" data-cat="Water Sports"><span class="category-number">04 / FLOW</span><span class="category-icon">≈</span><span class="category-title">Water<br>Sports</span><span class="category-link">SHOP CATEGORY ↗</span></a>
+      </div>
+    </section>
+
+    <section class="section shop-section" id="shop">
+      <div class="section-heading shop-heading"><div><p class="eyebrow">THE TRAILVANTA EDIT</p><h2>Good gear. <em>Great days.</em></h2></div><p class="section-note">A few good things to take you further.</p></div>
+      <div class="shop-toolbar"><div class="filter-chips" id="filterChips" aria-label="Filter products"><button class="chip active" data-filter="All">All gear</button><button class="chip" data-filter="Camping">Camp & hike</button><button class="chip" data-filter="Fitness">Fitness</button><button class="chip" data-filter="Cycling">Cycling</button><button class="chip" data-filter="Water Sports">Water sports</button></div><label class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Find your gear" aria-label="Search products"></label></div>
+      <div id="products" class="product-grid" aria-live="polite"><div class="loading-state">Loading the good stuff…</div></div>
+      <p class="demo-note">DEMO COLLECTION · Sample products and prices shown for website preview.</p>
+    </section>
+
+    <section class="feature-band" id="story"><div class="feature-art"><div class="feature-sun"></div><div class="feature-ridge"></div><span>GO<br>BEYOND</span></div><div class="feature-copy"><p class="eyebrow">A LITTLE MORE OUT THERE</p><h2>Less scrolling.<br><em>More exploring.</em></h2><p>We believe the best days happen when you step outside. TRAILVANTA brings together practical picks for movement, fresh air and the everyday adventures worth remembering.</p><a class="button button-dark" href="#shop">FIND YOUR NEXT FAVORITE <span>↗</span></a></div></section>
+
+    <section class="newsletter" id="contact"><div><p class="eyebrow">STAY IN THE LOOP</p><h2>Good things are <em>out there.</em></h2><p>Questions about an item or your order? Send our team a message.</p></div><form id="contactForm" class="contact-form"><label><span>Your name</span><input name="name" autocomplete="name" required placeholder="Your name"></label><label><span>Email address</span><input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label><label class="message-field"><span>How can we help?</span><textarea name="message" required placeholder="Write your message…"></textarea></label><button class="button button-light" type="submit">SEND MESSAGE <span>↗</span></button><p class="form-feedback" id="contactFeedback" aria-live="polite"></p></form></section>
+
+    <section class="policy-section" id="policies"><div class="section-heading"><div><p class="eyebrow">THE DETAILS</p><h2>Good to <em>know.</em></h2></div><p class="section-note">These are preview policies for the demo store. Final terms will be published before sales begin.</p></div><div class="policy-grid"><article id="shipping"><h3>Shipping</h3><p>Delivery options, shipping fees, dispatch times and estimated arrival dates will be confirmed at checkout once our shipping destinations and warehouses are finalized.</p></article><article id="returns"><h3>Returns & refunds</h3><p>Our final return window, eligible product conditions, return address and refund processing times will be clearly stated before the store accepts paid orders.</p></article><article id="privacy"><h3>Privacy</h3><p>Customer information will be used only to support store operations, order handling and customer service, subject to the final published privacy policy and applicable law.</p></article><article id="terms"><h3>Terms of service</h3><p>Product availability, prices, warranties and sale terms shown here are demonstration content and are not offers to sell. Final terms will be provided before launch.</p></article></div></section>
+  </main>
+
+  <footer class="site-footer"><div class="footer-main"><a class="brand brand-footer" href="#top"><span class="brand-mark">T<span>V</span></span><span class="brand-name">TRAILVANTA<small>SPORTS & OUTDOOR</small></span></a><p>Gear up. Get out there.<br>Make today a little more outdoors.</p><div class="footer-links"><a href="#shop">Shop</a><a href="#story">Our story</a><a href="#contact">Contact</a><a href="#shipping">Shipping</a><a href="#returns">Returns</a><a href="#privacy">Privacy</a><a href="#terms">Terms</a></div></div><div class="footer-bottom"><span>© <span id="year">2026</span> TRAILVANTA. ALL RIGHTS RESERVED.</span><span>DEMO STORE · PAYMENT NOT ENABLED</span></div></footer>
+
+  <div class="drawer-backdrop" id="backdrop"></div>
+  <aside class="cart-drawer" id="drawer" aria-label="Shopping cart" aria-hidden="true">
+    <div class="drawer-header"><div><p class="eyebrow">YOUR PICKS</p><h2>Your bag <span id="drawerCount">(0)</span></h2></div><button id="cartClose" class="icon-button" aria-label="Close cart">×</button></div>
+    <div id="cartLines" class="cart-lines"><p class="empty-cart">Your bag is waiting for an adventure.</p></div>
+    <div class="drawer-bottom"><div class="subtotal-row"><span>Subtotal</span><strong id="subtotal">$0.00</strong></div><p class="shipping-hint">Shipping and taxes are calculated separately.</p>
+      <form id="orderForm" class="order-form"><p class="eyebrow">DELIVERY DETAILS</p><label>Full name<input name="customer_name" autocomplete="name" required placeholder="Full name"></label><label>Email address<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label><label>Street address<input name="address" autocomplete="street-address" required placeholder="Street address"></label><div class="form-row"><label>City<input name="city" autocomplete="address-level2" required placeholder="City"></label><label>Postal code<input name="postal_code" autocomplete="postal-code" required placeholder="ZIP / Postcode"></label></div><label>Country<input name="country" autocomplete="country-name" required placeholder="Country"></label><button class="button button-dark submit-order" type="submit">SUBMIT ORDER REQUEST <span>↗</span></button><p class="unpaid-note">This is a demo order request. No payment will be collected.</p><p class="form-feedback" id="orderFeedback" aria-live="polite"></p></form>
+    </div>
+  </aside>
+  <div class="detail-backdrop" id="detailBackdrop"></div>
+  <section class="product-detail" id="productDetail" role="dialog" aria-modal="true" aria-labelledby="detailName" aria-hidden="true">
+    <button class="detail-close" type="button" data-detail-close aria-label="Close product details">×</button>
+    <div class="detail-visual" id="detailVisual"><span class="detail-symbol">✳</span></div>
+    <div class="detail-copy"><p class="eyebrow" id="detailCategory">CATEGORY</p><h2 id="detailName">Product name</h2><p class="detail-price" id="detailPrice">$0.00</p><p class="detail-description" id="detailDescription"></p><p class="detail-stock" id="detailStock"></p><button class="button button-dark" id="detailAdd" type="button" data-add="">ADD TO BAG <span>↗</span></button><p class="detail-demo-note">DEMO PRODUCT · Payment is not enabled.</p></div>
+  </section>
+  <div id="notice" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

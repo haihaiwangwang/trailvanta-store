@@ -1,0 +1,1 @@
+export async function onRequestGet({request,env}){if(!env.ADMIN_TOKEN||request.headers.get("Authorization")!==`Bearer ${env.ADMIN_TOKEN}`)return Response.json({error:"Unauthorized"},{status:401});let {results}=await env.DB.prepare("SELECT * FROM orders ORDER BY created_at DESC LIMIT 200").all();return Response.json({orders:results||[]})}
