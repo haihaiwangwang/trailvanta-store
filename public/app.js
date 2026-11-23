@@ -5,6 +5,8 @@ let products = [];
 let cart = [];
 let activeCategory = 'All';
 let noticeTimer;
+let orderSubmissionInProgress = false;
+let orderSubmissionCompleted = false;
 
 function notify(message) {
   const notice = $('#notice');
@@ -141,7 +143,9 @@ async function postJSON(url, body) {
 
 $('#orderForm').addEventListener('submit', async (event) => {
   event.preventDefault();
+  if (orderSubmissionInProgress || orderSubmissionCompleted) return;
   if (!cart.length) return notify('Your bag is empty');
+  orderSubmissionInProgress = true;
   const form = event.currentTarget;
   const button = event.submitter;
   const feedback = $('#orderFeedback');
@@ -155,12 +159,19 @@ $('#orderForm').addEventListener('submit', async (event) => {
     cart = [];
     renderCart();
     form.reset();
+    orderSubmissionCompleted = true;
+    button.textContent = 'REQUEST RECEIVED';
     notify('Your order request was received');
   } catch (error) {
     feedback.textContent = `${error.message} (The demo order service may not be connected yet.)`;
   } finally {
-    button.disabled = false;
-    button.innerHTML = 'SUBMIT ORDER REQUEST <span>↗</span>';
+    orderSubmissionInProgress = false;
+    if (!orderSubmissionCompleted) {
+      button.disabled = false;
+      button.innerHTML = 'SUBMIT ORDER REQUEST <span>↗</span>';
+    } else {
+      button.disabled = true;
+    }
   }
 });
 
