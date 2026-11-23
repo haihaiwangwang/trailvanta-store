@@ -20,7 +20,7 @@ export async function onRequestPost({ request, env }) {
   if (!customerName || !email || !address || !city || !country || !postalCode) {
     return json({ error: "Complete all delivery details." }, 400);
   }
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return json({ error: "Enter a valid email address." }, 400);
   }
   if (!Array.isArray(body.items) || body.items.length < 1 || body.items.length > 25) {
