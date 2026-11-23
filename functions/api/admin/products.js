@@ -1,4 +1,4 @@
-import { verifyAdmin } from "./admin/auth.js";
+import { verifyAdmin } from "./auth.js";
 const json=(data,status=200)=>Response.json(data,{status,headers:{"Cache-Control":"no-store"}});
 const categories=new Set(["trail-running","hiking","camping","accessories"]);
 const clean=(v,n)=>String(v??"").trim().slice(0,n);
