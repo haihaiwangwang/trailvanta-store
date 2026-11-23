@@ -1,24 +1,7 @@
 const $ = (selector) => document.querySelector(selector);
 const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value) || 0);
-const DEMO_PRODUCTS = [
-  {id:1,name:'Trailblazer 2-Person Tent',category:'Camping',price:89,stock:20,description:'A roomy, easy-pitch shelter for weekends outside.',symbol:'⌂',tag:'BEST SELLER',bg:'#dce2d2'},
-  {id:2,name:'All-Terrain Hiking Backpack',category:'Camping',price:54,stock:25,description:'A versatile daypack with space for the essentials.',symbol:'▤',tag:'TRAIL PICK',bg:'#e3d9c6'},
-  {id:3,name:'Compact Camping Lantern',category:'Camping',price:28,stock:30,description:'Warm light for camp nights and early starts.',symbol:'◉',tag:'',bg:'#d9e1d9'},
-  {id:4,name:'Insulated Outdoor Bottle',category:'Camping',price:22,stock:45,description:'A durable bottle for long days on the move.',symbol:'▯',tag:'',bg:'#e6ddce'},
-  {id:5,name:'Resistance Band Training Set',category:'Fitness',price:24,stock:40,description:'A simple, portable set for full-body workouts.',symbol:'〰',tag:'EVERYDAY ESSENTIAL',bg:'#e1d8c7'},
-  {id:6,name:'Adjustable Fitness Dumbbell',category:'Fitness',price:69,stock:12,description:'Flexible strength training for home sessions.',symbol:'●',tag:'',bg:'#d9dfd4'},
-  {id:7,name:'Performance Yoga Mat',category:'Fitness',price:35,stock:28,description:'A comfortable base for stretching and flow.',symbol:'▱',tag:'',bg:'#d8e2dd'},
-  {id:8,name:'Agility Training Cones',category:'Fitness',price:18,stock:60,description:'Set up drills and quick-footwork sessions.',symbol:'△',tag:'',bg:'#e7dec9'},
-  {id:9,name:'Urban Ride Helmet',category:'Cycling',price:42,stock:18,description:'Everyday cycling protection with a clean profile.',symbol:'◒',tag:'RIDER FAVORITE',bg:'#dce1d7'},
-  {id:10,name:'Compact Bike Repair Kit',category:'Cycling',price:19,stock:35,description:'Handy tools for common roadside adjustments.',symbol:'⚒',tag:'',bg:'#e4daca'},
-  {id:11,name:'Cycling Gloves',category:'Cycling',price:16,stock:50,description:'Comfort-focused grip for daily rides.',symbol:'✳',tag:'',bg:'#d9e2dc'},
-  {id:12,name:'LED Bike Light Set',category:'Cycling',price:25,stock:32,description:'A front and rear light set for added visibility.',symbol:'☼',tag:'',bg:'#e5e0cf'},
-  {id:13,name:'Inflatable Paddle Board Kit',category:'Water Sports',price:249,stock:6,description:'A versatile board kit for calm-water exploring.',symbol:'⌁',tag:'ADVENTURE PICK',bg:'#d5e3df'},
-  {id:14,name:'Quick-Dry Swim Goggles',category:'Water Sports',price:16,stock:50,description:'A comfortable fit for pool and open-water sessions.',symbol:'◎',tag:'',bg:'#d9e1e1'},
-  {id:15,name:'Waterproof Dry Bag',category:'Water Sports',price:21,stock:40,description:'Keep everyday essentials together near the water.',symbol:'▱',tag:'',bg:'#dce4d7'},
-  {id:16,name:'Floating Swim Buoy',category:'Water Sports',price:29,stock:22,description:'A bright visibility aid for open-water practice.',symbol:'◉',tag:'',bg:'#e7ddc9'}
-];
-let products = [...DEMO_PRODUCTS];
+const DEMO_PRODUCTS = [];
+let products = [];
 let cart = [];
 let activeCategory = 'All';
 let noticeTimer;
@@ -41,7 +24,7 @@ function renderProducts() {
     <article class="product-card">
       <div class="product-visual" style="--product-bg:${product.bg || '#e1e5da'}">
         ${product.tag ? `<span class="product-tag">${product.tag}</span>` : ''}
-        <span class="product-symbol" aria-hidden="true">${product.symbol || '✳'}</span>
+        ${product.image ? `<img src="${product.image}" alt="${product.name}" loading="lazy">` : `<span class="product-symbol" aria-hidden="true">✳</span>`}
       </div>
       <div class="product-info">
         <span class="product-category">${product.category}</span>
@@ -57,7 +40,7 @@ function openProductDetail(productId) {
   if (!product) return;
   const panel = $('#productDetail');
   $('#detailVisual').style.setProperty('--product-bg', product.bg || '#e1e5da');
-  $('#detailVisual').innerHTML = `<span class="detail-symbol" aria-hidden="true">${product.symbol || '✳'}</span>`;
+  $('#detailVisual').innerHTML = product.image ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover">` : `<span class="detail-symbol" aria-hidden="true">✳</span>`;
   $('#detailCategory').textContent = product.category;
   $('#detailName').textContent = product.name;
   $('#detailPrice').textContent = money(product.price);
@@ -131,7 +114,7 @@ document.addEventListener('click', (event) => {
   const quantityButton = event.target.closest('[data-qty]');
   if (quantityButton) {
     const item = cart.find((entry) => String(entry.id) === quantityButton.dataset.id);
-    if (item) item.quantity += quantityButton.dataset.qty === 'plus' ? 1 : -1;
+    if (item) { if (quantityButton.dataset.qty === 'plus' && item.quantity >= item.stock) return notify('Maximum available quantity reached'); item.quantity += quantityButton.dataset.qty === 'plus' ? 1 : -1; }
     cart = cart.filter((entry) => entry.quantity > 0);
     renderCart();
   }
@@ -195,10 +178,18 @@ $('#contactForm').addEventListener('submit', async (event) => {
   } finally { button.disabled = false; }
 });
 
-// Render instantly from local demo data; refresh from the store API when it is available.
+// Load the live TRAILVANTA catalog from the database-backed API.
 renderProducts();
 renderCart();
 fetch('/api/products', { headers: { Accept: 'application/json' } })
-  .then((response) => { if (!response.ok) throw new Error('API unavailable'); return response.json(); })
-  .then((data) => { if (Array.isArray(data.products) && data.products.length) { products = data.products.map((item) => ({ ...item, symbol: DEMO_PRODUCTS.find((demo) => demo.id === item.id)?.symbol || '✳', tag: DEMO_PRODUCTS.find((demo) => demo.id === item.id)?.tag || '', bg: DEMO_PRODUCTS.find((demo) => demo.id === item.id)?.bg || '#e1e5da' })); renderProducts(); } })
-  .catch(() => { /* Local demo catalog remains available for preview. */ });
+  .then((response) => { if (!response.ok) throw new Error('Catalog unavailable'); return response.json(); })
+  .then((data) => {
+    if (!Array.isArray(data.products)) throw new Error('Invalid catalog response');
+    products = data.products;
+    renderProducts();
+  })
+  .catch(() => {
+    products = [];
+    renderProducts();
+    $('#products').innerHTML = '<div class="empty-results">Our gear collection is temporarily unavailable. Please try again shortly.</div>';
+  });
