@@ -1,1 +1,113 @@
-const out=(x,s=200)=>Response.json(x,{status:s});export async function onRequestPost({request,env}){let b;try{b=await request.json()}catch{return out({error:"Invalid JSON"},400)}const fields=["customer_name","email","address","city","country","postal_code"];if(fields.some(k=>typeof b[k]!=="string"||!b[k].trim())||!Array.isArray(b.items)||!b.items.length||b.items.length>25)return out({error:"Complete shipping details and add products."},400);let ids=b.items.map(x=>Number(x.product_id));if(ids.some(x=>!Number.isInteger(x))||new Set(ids).size!==ids.length)return out({error:"Invalid cart"},400);let q=ids.map(()=>"?").join(",");let {results}=await env.DB.prepare(`SELECT id,name,price,currency,stock,active FROM products WHERE id IN (${q})`).bind(...ids).all();let map=new Map(results.map(p=>[p.id,p])),total=0,items=[];for(let x of b.items){let p=map.get(Number(x.product_id)),n=Number(x.quantity);if(!p||!p.active||!Number.isInteger(n)||n<1||n>20||p.stock<n)return out({error:"Product or stock changed. Refresh your cart."},409);total+=p.price*n;items.push({p,n})}if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(b.email))return out({error:"Invalid email"},400);let no="TV"+Date.now().toString(36).toUpperCase();try{await env.DB.batch([env.DB.prepare("INSERT INTO orders(order_number,customer_name,email,address,city,country,postal_code,total,currency,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,'pending_payment',CURRENT_TIMESTAMP)").bind(no,b.customer_name.slice(0,120),b.email.toLowerCase(),b.address.slice(0,250),b.city.slice(0,120),b.country.slice(0,100),b.postal_code.slice(0,30),total,items[0].p.currency||"USD"),...items.map(({p,n})=>env.DB.prepare("INSERT INTO order_items(order_number,product_id,product_name,unit_price,quantity) VALUES(?,?,?,?,?)").bind(no,p.id,p.name,p.price,n))]);return out({ok:true,order_number:no,status:"pending_payment",message:"Saved as an unpaid order request."},201)}catch{return out({error:"Could not save order"},500)}}
+const json = (data, status = 200) => Response.json(data, { status });
+
+const clean = (value, max) => String(value || "").trim().slice(0, max);
+
+export async function onRequestPost({ request, env }) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: "Invalid request body." }, 400);
+  }
+
+  const customerName = clean(body.customer_name, 120);
+  const email = clean(body.email, 254).toLowerCase();
+  const address = clean(body.address, 250);
+  const city = clean(body.city, 120);
+  const country = clean(body.country, 100);
+  const postalCode = clean(body.postal_code, 30);
+
+  if (!customerName || !email || !address || !city || !country || !postalCode) {
+    return json({ error: "Complete all delivery details." }, 400);
+  }
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+    return json({ error: "Enter a valid email address." }, 400);
+  }
+  if (!Array.isArray(body.items) || body.items.length < 1 || body.items.length > 25) {
+    return json({ error: "Your cart is empty or contains too many items." }, 400);
+  }
+
+  const quantities = new Map();
+  for (const item of body.items) {
+    const productId = Number(item.product_id);
+    const quantity = Number(item.quantity);
+    if (!Number.isSafeInteger(productId) || productId < 1 ||
+        !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
+      return json({ error: "Invalid cart item." }, 400);
+    }
+    quantities.set(productId, (quantities.get(productId) || 0) + quantity);
+  }
+  if ([...quantities.values()].some((quantity) => quantity > 20)) {
+    return json({ error: "Maximum quantity per product is 20." }, 400);
+  }
+
+  const ids = [...quantities.keys()];
+  const placeholders = ids.map(() => "?").join(",");
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT id, slug, name, price_cents, stock, active, image
+       FROM products WHERE id IN (${placeholders})`
+    ).bind(...ids).all();
+
+    const byId = new Map((results || []).map((product) => [product.id, product]));
+    const orderItems = [];
+    let subtotalCents = 0;
+
+    for (const [id, quantity] of quantities) {
+      const product = byId.get(id);
+      if (!product || product.active !== 1 || product.stock < quantity) {
+        return json({ error: "A product is unavailable or its stock has changed. Please refresh your cart." }, 409);
+      }
+      subtotalCents += product.price_cents * quantity;
+      orderItems.push({ product, quantity });
+    }
+
+    const orderNo = "TV-" + Date.now().toString(36).toUpperCase() +
+      "-" + crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
+    const accessKey = crypto.randomUUID() + crypto.randomUUID();
+    const shippingAddress = JSON.stringify({
+      address,
+      city,
+      country,
+      postal_code: postalCode
+    });
+
+    const statements = [
+      env.DB.prepare(`
+        INSERT INTO orders (
+          order_no, status, email, customer_name, currency,
+          subtotal_cents, shipping_cents, shipping_method, tax_cents,
+          total_cents, shipping_address_json, access_key
+        ) VALUES (?, 'pending_payment', ?, ?, 'USD', ?, 0, 'standard', 0, ?, ?, ?)
+      `).bind(orderNo, email, customerName, subtotalCents, subtotalCents, shippingAddress, accessKey)
+    ];
+
+    for (const { product, quantity } of orderItems) {
+      statements.push(env.DB.prepare(`
+        INSERT INTO order_items (
+          order_id, product_slug, name, size, color,
+          unit_price_cents, qty, image
+        )
+        SELECT id, ?, ?, NULL, NULL, ?, ?, ?
+        FROM orders WHERE order_no = ?
+      `).bind(
+        product.slug,
+        product.name,
+        product.price_cents,
+        quantity,
+        product.image || null,
+        orderNo
+      ));
+    }
+
+    await env.DB.batch(statements);
+    return json({
+      ok: true,
+      order_number: orderNo,
+      status: "pending_payment",
+      message: "Your unpaid order request has been received."
+    }, 201);
+  } catch (error) {
+    return json({ error: "We could not save your order. Please try again." }, 500);
+  }
+}
