@@ -142,18 +142,19 @@ async function postJSON(url, body) {
 $('#orderForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!cart.length) return notify('Your bag is empty');
+  const form = event.currentTarget;
   const button = event.submitter;
   const feedback = $('#orderFeedback');
   button.disabled = true;
   button.textContent = 'SUBMITTING…';
   feedback.textContent = '';
   try {
-    const details = Object.fromEntries(new FormData(event.currentTarget));
+    const details = Object.fromEntries(new FormData(form));
     const result = await postJSON('/api/orders', { ...details, items: cart.map((item) => ({ product_id: item.id, quantity: item.quantity })) });
     feedback.textContent = `Request received: ${result.order_number || 'Thank you!'}`;
     cart = [];
     renderCart();
-    event.currentTarget.reset();
+    form.reset();
     notify('Your order request was received');
   } catch (error) {
     feedback.textContent = `${error.message} (The demo order service may not be connected yet.)`;
