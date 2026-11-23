@@ -1,4 +1,4 @@
-import { verifyAdmin } from "./admin/auth.js";
+import { verifyAdmin } from "./auth.js";
 const json=(data,status=200)=>Response.json(data,{status,headers:{"Cache-Control":"no-store"}});
 export async function onRequestPost({request,env}){
  if(!(await verifyAdmin(request,env)))return json({error:"Unauthorized"},401);
